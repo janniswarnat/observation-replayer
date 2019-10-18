@@ -33,7 +33,7 @@ public class ObservationReplayer {
     private String GOST_DB_USER = System.getenv("GOST_DB_USER");
     private String GOST_DB_PASSWORD = System.getenv("GOST_DB_PASSWORD");
 
-    private String DATASTREAM_ID = System.getenv("DATASTREAM_ID");
+    private String DATASTREAM_IDS = System.getenv("DATASTREAM_IDS");
     private int OBSERVATION_ID_START = Integer.parseInt(System.getenv("OBSERVATION_ID_START"));
     private int OBSERVATION_ID_END = Integer.parseInt(System.getenv("OBSERVATION_ID_END"));
     private int OBSERVATION_INTERVAL_MS = Integer.parseInt(System.getenv("OBSERVATION_INTERVAL_MS"));
@@ -65,7 +65,7 @@ public class ObservationReplayer {
     }
 
     private void connectMqtt() {
-        String clientId = "ObservationReplayer_" + DATASTREAM_ID + "_" + OBSERVATION_ID_START + "_" + OBSERVATION_ID_END;
+        String clientId = "ObservationReplayer_" + DATASTREAM_IDS + "_" + OBSERVATION_ID_START + "_" + OBSERVATION_ID_END;
         MemoryPersistence persistence = new MemoryPersistence();
 
         try {
@@ -111,7 +111,7 @@ public class ObservationReplayer {
         Statement stmt = null;
         try {
             stmt = c.createStatement();
-            String query = "SELECT id, data, stream_id FROM v1.observation where stream_id in (" + DATASTREAM_ID + ") and id between " + OBSERVATION_ID_START + " and " + OBSERVATION_ID_END + " order by id asc;";
+            String query = "SELECT id, data, stream_id FROM v1.observation where stream_id in (" + DATASTREAM_IDS + ") and id between " + OBSERVATION_ID_START + " and " + OBSERVATION_ID_END + " order by id asc;";
             System.out.println("query = " + query);
             ResultSet rs = stmt.executeQuery(query);
             while (rs.next()) {
@@ -203,7 +203,7 @@ public class ObservationReplayer {
         checkMandatoryEnvVariable("BROKER_URI");
         checkOptionalEnvVariable("BROKER_USERNAME");
         checkOptionalEnvVariable("BROKER_PASSWORD");
-        checkMandatoryEnvVariable("DATASTREAM_ID");
+        checkMandatoryEnvVariable("DATASTREAM_IDS");
         checkMandatoryEnvVariable("OBSERVATION_ID_START");
         checkMandatoryEnvVariable("OBSERVATION_ID_END");
         checkMandatoryEnvVariable("OBSERVATION_INTERVAL_MS");

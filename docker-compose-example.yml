@@ -5,12 +5,14 @@ services:
     container_name: "observation-replayer"
     environment:
       BROKER_URI: "tcp://monappdwp3.monica-cloud.eu:1883"
+      BROKER_USERNAME: ""
+      BROKER_PASSWORD: ""
       GOST_MQTT_PREFIX: GOST_PUETZ
       GOST_DB_HOST: "MPCLFDBPQL01.monica-cloud.eu"
       GOST_DB_DATABASE: gost_puetz_2019
       GOST_DB_USER: "<username>"
       GOST_DB_PASSWORD: "<password>"
-      DATASTREAM_ID: "61,66"
+      DATASTREAM_IDS: "61,66"
       OBSERVATION_ID_START: 5800
       OBSERVATION_ID_END: 6000
       OBSERVATION_INTERVAL_MS: 1000
