@@ -284,7 +284,7 @@ public class ObservationReplayer {
                     //System.out.println("Set key phenomenonTime with value " + format.format(date));
                     String topic = GOST_MQTT_PREFIX + "/Datastreams(" + stream_id + ")/Observations";
                     publish(newObservation.toString(), topic);
-                    System.out.println("Write observation to " + topic + ":");
+                    System.out.println("Publish observation to " + topic + ":");
                     System.out.println(newObservation);
                     Thread.sleep(OBSERVATION_INTERVAL_MS);
                 } catch (IOException e) {
