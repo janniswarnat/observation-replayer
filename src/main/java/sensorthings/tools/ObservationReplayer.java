@@ -10,6 +10,7 @@ import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import javax.swing.*;
 import java.io.IOException;
 import java.sql.*;
 
@@ -19,24 +20,157 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.StringTokenizer;
 
 public class ObservationReplayer {
 
     private ObjectMapper mapper = new ObjectMapper();
-    private String BROKER_URI = System.getenv("BROKER_URI");
-    private String BROKER_USERNAME = System.getenv("BROKER_USERNAME");
-    private String BROKER_PASSWORD = System.getenv("BROKER_PASSWORD");
-    private String GOST_MQTT_PREFIX = System.getenv("GOST_MQTT_PREFIX");
+    private String BROKER_URI = null;
+    private String BROKER_USERNAME = null;
+    private String BROKER_PASSWORD = null;
+    private String GOST_MQTT_PREFIX = null;
 
-    private String GOST_DB_HOST = System.getenv("GOST_DB_HOST");
-    private String GOST_DB_DATABASE = System.getenv("GOST_DB_DATABASE");
-    private String GOST_DB_USER = System.getenv("GOST_DB_USER");
-    private String GOST_DB_PASSWORD = System.getenv("GOST_DB_PASSWORD");
+    private String GOST_DB_HOST = null;
+    private String GOST_DB_DATABASE = null;
+    private String GOST_DB_USER = null;
+    private String GOST_DB_PASSWORD = null;
 
-    private String DATASTREAM_IDS = System.getenv("DATASTREAM_IDS");
-    private int OBSERVATION_ID_START = Integer.parseInt(System.getenv("OBSERVATION_ID_START"));
-    private int OBSERVATION_ID_END = Integer.parseInt(System.getenv("OBSERVATION_ID_END"));
-    private int OBSERVATION_INTERVAL_MS = Integer.parseInt(System.getenv("OBSERVATION_INTERVAL_MS"));
+    private String DATASTREAM_IDS = null;
+
+    private int OBSERVATION_ID_START = 0;
+    private int OBSERVATION_ID_END = Integer.MAX_VALUE;
+    private int OBSERVATION_INTERVAL_MS = 1000;
+
+    public void setBROKER_URI(String value) {
+        if (value != null && !value.isEmpty()) {
+            BROKER_URI = value;
+            System.out.println("BROKER_URI is " + BROKER_URI);
+        } else {
+            System.out.println("BROKER_URI cannot be null, exiting...");
+            System.exit(0);
+        }
+    }
+
+    public void setBROKER_USERNAME(String value) {
+        if (value != null && !value.isEmpty()) {
+            BROKER_USERNAME = value;
+            System.out.println("BROKER_USERNAME is " + BROKER_USERNAME);
+        } else {
+            System.out.println("BROKER_USERNAME not set");
+        }
+    }
+
+    public void setBROKER_PASSWORD(String value) {
+        if (value != null && !value.isEmpty()) {
+            BROKER_PASSWORD = value;
+            System.out.println("BROKER_PASSWORD is " + BROKER_PASSWORD);
+        } else {
+            System.out.println("BROKER_PASSWORD not set");
+        }
+    }
+
+    public void setGOST_MQTT_PREFIX(String value) {
+        if (value != null && !value.isEmpty()) {
+            GOST_MQTT_PREFIX = value;
+            System.out.println("GOST_MQTT_PREFIX is " + GOST_MQTT_PREFIX);
+        } else {
+            System.out.println("GOST_MQTT_PREFIX cannot be null, exiting...");
+            System.exit(0);
+        }
+    }
+
+
+    public void setGOST_DB_HOST(String value) {
+        if (value != null && !value.isEmpty()) {
+            GOST_DB_HOST = value;
+            System.out.println("GOST_DB_HOST is " + GOST_DB_HOST);
+        } else {
+            System.out.println("GOST_DB_HOST cannot be null, exiting...");
+            System.exit(0);
+        }
+    }
+
+    public void setGOST_DB_DATABASE(String value) {
+        if (value != null && !value.isEmpty()) {
+            GOST_DB_DATABASE = value;
+            System.out.println("GOST_DB_DATABASE is " + GOST_DB_DATABASE);
+        } else {
+            System.out.println("GOST_DB_DATABASE cannot be null, exiting...");
+            System.exit(0);
+        }
+    }
+
+    public void setGOST_DB_USER(String value) {
+        if (value != null && !value.isEmpty()) {
+            GOST_DB_USER = value;
+            System.out.println("GOST_DB_USER is " + GOST_DB_USER);
+        } else {
+            System.out.println("GOST_DB_USER cannot be null, exiting...");
+            System.exit(0);
+        }
+    }
+
+    public void setGOST_DB_PASSWORD(String value) {
+        if (value != null && !value.isEmpty()) {
+            GOST_DB_PASSWORD = value;
+            System.out.println("GOST_DB_PASSWORD is " + GOST_DB_PASSWORD);
+        } else {
+            System.out.println("GOST_DB_PASSWORD cannot be null, exiting...");
+            System.exit(0);
+        }
+    }
+
+    public void setDATASTREAM_IDS(String value) {
+        if (value != null && !value.isEmpty()) {
+            DATASTREAM_IDS = value;
+            DATASTREAM_IDS = DATASTREAM_IDS.startsWith(",") ? DATASTREAM_IDS.substring(1) : DATASTREAM_IDS;
+            DATASTREAM_IDS = DATASTREAM_IDS.replaceAll(",$", "");
+            StringTokenizer tok = new StringTokenizer(DATASTREAM_IDS,",");
+            while(tok.hasMoreTokens())
+            {
+                String current = tok.nextToken();
+                try {
+                    int id = Integer.parseInt(current);
+                }
+                catch(NumberFormatException e)
+                {
+                    System.out.println("Datastream id "+current+" is not a parsable Integer");
+                    System.exit(0);
+                }
+
+            }
+            System.out.println("DATASTREAM_IDS is " + DATASTREAM_IDS);
+        } else {
+            System.out.println("DATASTREAM_IDS not set, default is all");
+        }
+    }
+
+    public void setOBSERVATION_ID_START(String value) {
+        if (value != null && !value.isEmpty()) {
+            OBSERVATION_ID_START = Integer.parseInt(value);
+            System.out.println("OBSERVATION_ID_START is " + OBSERVATION_ID_START);
+        } else {
+            System.out.println("OBSERVATION_ID_START not set, default is "+OBSERVATION_ID_START);
+        }
+    }
+
+    public void setOBSERVATION_ID_END(String value) {
+        if (value != null && !value.isEmpty()) {
+            OBSERVATION_ID_END = Integer.parseInt(value);
+            System.out.println("OBSERVATION_ID_END is " + OBSERVATION_ID_END);
+        } else {
+            System.out.println("OBSERVATION_ID_END not set, default is "+OBSERVATION_ID_END);
+        }
+    }
+
+    public void setOBSERVATION_INTERVAL_MS(String value) {
+        if (value != null && !value.isEmpty()) {
+            OBSERVATION_INTERVAL_MS = Integer.parseInt(value);
+            System.out.println("OBSERVATION_INTERVAL_MS is " + OBSERVATION_INTERVAL_MS);
+        } else {
+            System.out.println("OBSERVATION_INTERVAL_MS not set, default is "+OBSERVATION_INTERVAL_MS);
+        }
+    }
 
     private int qos = 0;
     private MqttClient sampleClient = null;
@@ -111,14 +245,21 @@ public class ObservationReplayer {
         Statement stmt = null;
         try {
             stmt = c.createStatement();
-            String query = "SELECT id, data, stream_id FROM v1.observation where stream_id in (" + DATASTREAM_IDS + ") and id between " + OBSERVATION_ID_START + " and " + OBSERVATION_ID_END + " order by id asc;";
+            String query = null;
+            if(DATASTREAM_IDS != null) {
+                query = "SELECT id, data, stream_id FROM v1.observation where stream_id in (" + DATASTREAM_IDS + ") and id between " + OBSERVATION_ID_START + " and " + OBSERVATION_ID_END + " order by id asc;";
+            }
+            else
+            {
+                query = "SELECT id, data, stream_id FROM v1.observation where id between " + OBSERVATION_ID_START + " and " + OBSERVATION_ID_END + " order by id asc;";
+            }
             System.out.println("query = " + query);
             ResultSet rs = stmt.executeQuery(query);
             while (rs.next()) {
                 int id = rs.getInt("id");
                 int stream_id = rs.getInt("stream_id");
                 String data = rs.getString("data");
-                System.out.println("Read observation with id " + id + ", stream_id "+stream_id+":");
+                System.out.println("Read observation with id " + id + ", stream_id " + stream_id + ":");
                 System.out.println(data);
                 try {
                     JsonNode observationNode = mapper.readTree(data);
@@ -177,41 +318,20 @@ public class ObservationReplayer {
         }
     }
 
-    private void checkMandatoryEnvVariable(String name) {
-        String value = System.getenv(name);
-
-        if (value == null) {
-            System.out.println("Set environment variable " + name);
-            System.exit(0);
-        } else {
-            System.out.println(name + " = " + value);
-        }
-    }
-
-    private void checkOptionalEnvVariable(String name) {
-        String value = System.getenv(name);
-
-        if (value == null) {
-            System.out.println("Environment variable " + name + " is not set.");
-        } else {
-            System.out.println(name + " = " + value);
-        }
-    }
-
     public ObservationReplayer() {
 
-        checkMandatoryEnvVariable("BROKER_URI");
-        checkOptionalEnvVariable("BROKER_USERNAME");
-        checkOptionalEnvVariable("BROKER_PASSWORD");
-        checkMandatoryEnvVariable("DATASTREAM_IDS");
-        checkMandatoryEnvVariable("OBSERVATION_ID_START");
-        checkMandatoryEnvVariable("OBSERVATION_ID_END");
-        checkMandatoryEnvVariable("OBSERVATION_INTERVAL_MS");
-        checkMandatoryEnvVariable("GOST_MQTT_PREFIX");
-        checkMandatoryEnvVariable("GOST_DB_HOST");
-        checkMandatoryEnvVariable("GOST_DB_DATABASE");
-        checkMandatoryEnvVariable("GOST_DB_USER");
-        checkMandatoryEnvVariable("GOST_DB_PASSWORD");
+        setBROKER_URI(System.getenv("BROKER_URI"));
+        setBROKER_USERNAME(System.getenv("BROKER_USERNAME"));
+        setBROKER_PASSWORD(System.getenv("BROKER_PASSWORD"));
+        setGOST_MQTT_PREFIX(System.getenv("GOST_MQTT_PREFIX"));
+        setGOST_DB_HOST(System.getenv("GOST_DB_HOST"));
+        setGOST_DB_DATABASE(System.getenv("GOST_DB_DATABASE"));
+        setGOST_DB_USER(System.getenv("GOST_DB_USER"));
+        setGOST_DB_PASSWORD(System.getenv("GOST_DB_PASSWORD"));
+        setDATASTREAM_IDS(System.getenv("DATASTREAM_IDS"));
+        setOBSERVATION_ID_START(System.getenv("OBSERVATION_ID_START"));
+        setOBSERVATION_ID_END(System.getenv("OBSERVATION_ID_END"));
+        setOBSERVATION_INTERVAL_MS(System.getenv("OBSERVATION_INTERVAL_MS"));
 
         connectPostgres();
         connectMqtt();
